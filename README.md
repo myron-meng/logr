@@ -1,6 +1,6 @@
 # logr Package
 
-`logr` is a Go `log/slog` wrapper that provides easy-to-use functions for initializing and configuring log/slog in your Go applications.
+logr is a Go `log/slog` wrapper that provides easy-to-use functions for initializing and configuring `log/slog` in your Go applications.
 
 ## Features
 
@@ -16,7 +16,7 @@
 To use this package, run:
 
 ```
-go get github.com/yourusername/logr
+go get github.com/myron-meng/logr
 ```
 
 ## Quick Start
@@ -28,7 +28,7 @@ If you only need to print logs to stdout, you can initialize the logger with a s
 ```go
 package main
 
-import "github.com/yourusername/logr"
+import "github.com/myron-meng/logr"
 
 func main() {
     logr.InitSlog()
@@ -45,7 +45,8 @@ To log to a file, use the `WithFileOutput` option with `DefaultFileOutputConfig`
 package main
 
 import (
-    "github.com/yourusername/logr"
+    "github.com/myron-meng/logr"
+    
     "log/slog"
 )
 
