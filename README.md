@@ -32,7 +32,19 @@ import "github.com/myron-meng/logr"
 
 func main() {
     logr.InitSlog()
-    
+
+    // or set log level
+    // logr.InitSlog(logr.WithLevel(slog.LevelInfo))
+
+    // or set log level by function
+    // logr.InitSlog(logr.WithLevelFunc(func() slog.Level {
+    //     l := slog.LevelDebug
+    //     if os.Getenv("ENV") == "prod" {
+    //         l = slog.LevelInfo
+    //     }
+    //     return l
+    // }))
+
     // Your application code here
 }
 ```
