@@ -1,6 +1,6 @@
-# logr Package
+# sloginit Package
 
-logr is a Go `log/slog` wrapper that provides easy-to-use functions for initializing and configuring `log/slog` in your Go applications.
+sloginit is a Go `log/slog` wrapper that provides easy-to-use functions for initializing and configuring `log/slog` in your Go applications.
 
 ## Features
 
@@ -16,7 +16,7 @@ logr is a Go `log/slog` wrapper that provides easy-to-use functions for initiali
 To use this package, run:
 
 ```
-go get github.com/myron-meng/logr
+go get github.com/myron-meng/sloginit
 ```
 
 ## Quick Start
@@ -28,16 +28,16 @@ If you only need to print logs to stdout, you can initialize the logger with a s
 ```go
 package main
 
-import "github.com/myron-meng/logr"
+import "github.com/myron-meng/sloginit"
 
 func main() {
-    logr.InitSlog()
+    sloginit.Init()
 
     // or set log level
-    // logr.InitSlog(logr.WithLevel(slog.LevelInfo))
+    // sloginit.InitSlog(sloginit.WithLevel(slog.LevelInfo))
 
     // or set log level by function
-    // logr.InitSlog(logr.WithLevelFunc(func() slog.Level {
+    // sloginit.InitSlog(sloginit.WithLevelFunc(func() slog.Level {
     //     l := slog.LevelDebug
     //     if os.Getenv("ENV") == "prod" {
     //         l = slog.LevelInfo
@@ -57,22 +57,23 @@ To log to a file, use the `WithFileOutput` option with `DefaultFileOutputConfig`
 package main
 
 import (
-    "github.com/myron-meng/logr"
+    "github.com/myron-meng/sloginit"
     
     "log/slog"
 )
 
 func main() {
     // Log to a relative path
-    logr.InitSlog(
-        logr.WithFileOutput(logr.DefaultFileOutputConfig("logs/app.log")),
-        logr.WithLevel(slog.LevelInfo),
+    sloginit.InitSlog(
+        sloginit.WithFileOutput(sloginit.DefaultFileOutputConfig("logs/app.log")),
+        sloginit.WithLevel(slog.LevelInfo),
     )
+    defer sloginit.Close()
 
     // Or log to an absolute path
-    // logr.InitSlog(
-    //     logr.WithFileOutput(logr.DefaultFileOutputConfig("/var/logs/myapp/app.log")),
-    //     logr.WithLevel(slog.LevelInfo),
+    // sloginit.InitSlog(
+    //     sloginit.WithFileOutput(sloginit.DefaultFileOutputConfig("/var/logs/myapp/app.log")),
+    //     sloginit.WithLevel(slog.LevelInfo),
     // )
     
     // Your application code here
@@ -84,17 +85,18 @@ func main() {
 The `FileOutputConfig` struct allows you to customize various aspects of file logging:
 
 ```go
-logr.InitSlog(
-    logr.WithFileOutput(logr.FileOutputConfig{
+sloginit.InitSlog(
+    sloginit.WithFileOutput(sloginit.FileOutputConfig{
         Filename:   "logs/app.log",
         MaxSize:    100,  // 100 MB
         MaxBackups: 3,    // Keep 3 old files
         MaxAge:     28,   // 28 days
         Compress:   true, // Compress old files
     }),
-    logr.WithLevel(slog.LevelDebug),
-    logr.WithSource(true),
+    sloginit.WithLevel(slog.LevelDebug),
+    sloginit.WithSource(true),
 )
+defer sloginit.Close()
 ```
 
 ## Additional Options
@@ -114,7 +116,9 @@ slog.Debug("This is a debug message")
 slog.Error("An error occurred", "error", err)
 
 // For fatal errors
-logr.Fatal("A fatal error occurred", "error", err)
+sloginit.Fatal("A fatal error occurred", "error", err)
+// or
+slog.Log(context.TODO(),  slog.Level(12), msg, args...)
 ```
 
 For more detailed information on `slog` usage, refer to the official Go documentation.

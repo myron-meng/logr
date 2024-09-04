@@ -1,4 +1,4 @@
-package logr
+package sloginit
 
 import (
 	"context"
@@ -6,8 +6,14 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"sync"
 
 	"gopkg.in/natefinch/lumberjack.v2"
+)
+
+var (
+	fileLogger *lumberjack.Logger
+	closeOnce  sync.Once
 )
 
 // Option is a function type used to modify slog.HandlerOptions
@@ -18,11 +24,18 @@ type LevelFunc func() slog.Level
 
 // FileOutputConfig defines the configuration for file output
 type FileOutputConfig struct {
-	Filename   string // Supports both relative and absolute paths. A filename starting with "/" is considered an absolute path, otherwise it's relative. Relative paths are relative to the current working directory, e.g., "logs/app.log" will be relative to the current working directory
-	MaxSize    int    // Maximum size in megabytes
-	MaxBackups int    // Maximum number of old log files to retain
-	MaxAge     int    // Maximum number of days to retain old log files
-	Compress   bool   // Whether to compress old files
+	// Supports both relative and absolute paths. A filename starting with "/" is considered an absolute path,
+	// otherwise it's relative. Relative paths are relative to the current working directory,
+	// e.g., "logs/app.log" will be relative to the current working directory
+	Filename string
+	// Maximum size in megabytes
+	MaxSize int
+	// Maximum number of old log files to retain
+	MaxBackups int
+	// Maximum number of days to retain old log files
+	MaxAge int
+	// Whether to compress old files
+	Compress bool
 }
 
 // defaultFileOutputConfig provides the default file output configuration
@@ -43,8 +56,8 @@ func DefaultFileOutputConfig(filename string) FileOutputConfig {
 // FatalLevel defines the Fatal log level
 const FatalLevel = slog.Level(12) // Set higher than Error (8)
 
-// InitSlog initializes slog
-func InitSlog(options ...Option) {
+// Init initializes slog
+func Init(options ...Option) {
 	opts := &slog.HandlerOptions{}
 	var output io.Writer = os.Stdout // Default output to standard output
 
@@ -106,16 +119,25 @@ func WithFileOutput(config FileOutputConfig) Option {
 			panic("Unable to create log directory: " + err.Error())
 		}
 
-		logger := &lumberjack.Logger{
+		fileLogger = &lumberjack.Logger{
 			Filename:   filename,
 			MaxSize:    config.MaxSize,
 			MaxBackups: config.MaxBackups,
 			MaxAge:     config.MaxAge,
 			Compress:   config.Compress,
 		}
-		handler := slog.NewJSONHandler(logger, opts)
+		handler := slog.NewJSONHandler(fileLogger, opts)
 		slog.SetDefault(slog.New(handler))
 	}
+}
+
+// Close safely closes the log file if file output is being used
+func Close() {
+	closeOnce.Do(func() {
+		if fileLogger != nil {
+			_ = fileLogger.Close()
+		}
+	})
 }
 
 // WithSource sets whether to include source code location

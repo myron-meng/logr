@@ -1,4 +1,4 @@
-module github.com/myron-meng/logr
+module github.com/myron-meng/sloginit
 
 go 1.23.0
 
